@@ -3,7 +3,8 @@
 [Q&A Source](https://billwurtz.com/questions/questions.html)
 
 ### TODO
-- [ ] Add GUI
+- [x] Add GUI
+- [ ] Make GUI less ugly
 - [ ] Configure time interval
-- [ ] Configure voices
+- [x] Configure voices
 - [ ] Fully offline mode
