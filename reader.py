@@ -76,13 +76,21 @@ class Reader(Thread):
 
     def startReading(self):
         self._isReading = True
-        self.start()
+        #start thread if this is our first time starting to read
+        if not self.is_alive():
+            self.start()
 
     def readOverTime(self):
-        while self._isReading:
-            self.read()
-            timeBeforeNext = random.randrange(self.minReadTime, self.maxReadTime)
-            self._stop.wait(timeBeforeNext)
+        #thread should never actually stop, just stop reading at a time
+        while True:
+            time.sleep(0.1)
+            #clear stop flag if already set
+            if self._stop.is_set():
+                self._stop.clear()
+            while self._isReading:
+                self.read()
+                timeBeforeNext = random.randrange(self.minReadTime, self.maxReadTime)
+                self._stop.wait(timeBeforeNext)
 
     def stopReading(self):
         self._isReading = False
