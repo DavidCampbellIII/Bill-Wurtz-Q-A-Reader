@@ -2,6 +2,7 @@ import threading
 import bs4 as bs
 from urllib.request import urlopen, Request
 import pyttsx3
+from pyttsx3.drivers import sapi5
 import time
 import random
 from threading import Thread
