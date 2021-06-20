@@ -1,3 +1,4 @@
+import threading
 import bs4 as bs
 from urllib.request import urlopen, Request
 import pyttsx3
@@ -8,15 +9,21 @@ from threading import Thread
 class Reader(Thread):
     def __init__(self, url, readRate, minReadTime, maxReadTime):
         Thread.__init__(self, target=self.readOverTime)
-        self.daemon = True
+        self._stop = threading.Event()
         
         self._speechEngine = pyttsx3.init()
-        self.isReading = False
+        self._speechEngine.startLoop(False)
+        #need to "say()" at least once so thread can start properly when reading over time
+        self._speechEngine.say("")
+        self._speechEngine.iterate()
+        self._isReading = False
 
         self.url = url
         self.readRate = readRate
         self.minReadTime = minReadTime
         self.maxReadTime = maxReadTime
+        self.askerVoiceIndex = 0
+        self.billVoiceIndex = 1
 
     @property
     def readRate(self):
@@ -58,28 +65,28 @@ class Reader(Thread):
     def readQAPairs(self, pairs):
         print(pairs)
         for key in pairs:
-            self.say(key, 0)
-            self.say(pairs[key], 1)
+            self.say(key, self.askerVoiceIndex)
+            self.say(pairs[key], self.billVoiceIndex)
 
     def say(self, message, voiceIndex):
         voices = self._speechEngine.getProperty("voices")
         self._speechEngine.setProperty("voice", voices[voiceIndex].id)
         self._speechEngine.say(message)
-        self._speechEngine.runAndWait()
+        self._speechEngine.iterate()
 
     def startReading(self):
-        self.isReading = True
+        self._isReading = True
         self.start()
 
     def readOverTime(self):
-        while self.isReading:
+        while self._isReading:
             self.read()
-            timeBeforeNext = random.randrange(5, 10)
-            time.sleep(timeBeforeNext)
+            timeBeforeNext = random.randrange(self.minReadTime, self.maxReadTime)
+            self._stop.wait(timeBeforeNext)
 
     def stopReading(self):
-        self.isReading = False
-        self.join()
+        self._isReading = False
+        self._stop.set()
 
     def read(self):
         parsedText = self.loadPageText(self.url)

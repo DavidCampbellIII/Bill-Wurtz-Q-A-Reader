@@ -6,3 +6,4 @@
 - [ ] Add GUI
 - [ ] Configure time interval
 - [ ] Configure voices
+- [ ] Fully offline mode
