@@ -5,7 +5,7 @@ import pyttsx3
 from pyttsx3.drivers import sapi5
 import time
 import random
-from threading import Thread
+from threading import Thread, active_count
 
 class Reader(Thread):
     def __init__(self, url, readRate, minReadTime, maxReadTime):
@@ -20,6 +20,7 @@ class Reader(Thread):
         self._isReading = False
 
         self.url = url
+        print("Setting read rate from constructor")
         self.readRate = readRate
         self.minReadTime = minReadTime
         self.maxReadTime = maxReadTime
@@ -36,13 +37,13 @@ class Reader(Thread):
         self._speechEngine.setProperty("rate", value)
 
     #open page via url and return souped text
-    def loadPageText(self, url):
+    def _loadPageText(self, url):
         request = Request(url=url)
         pageText = urlopen(request).read()
         parsedText = bs.BeautifulSoup(pageText, "lxml")
         return parsedText
 
-    def findQuestionAnswerPairs(self, parsedText):
+    def _findQuestionAnswerPairs(self, parsedText):
         pairs = {}
         questionH3 = parsedText.find("h3")
         question = "the question did not work"
@@ -55,21 +56,21 @@ class Reader(Thread):
         except:
             print(f"Cannot find question as <qco> or <font>!\n{parsedText}")
         
-        question = self.cleanText(question)
-        answer = self.cleanText(questionH3.next_sibling)
+        question = self._cleanText(question)
+        answer = self._cleanText(questionH3.next_sibling)
         pairs[question] = answer
         return pairs
 
-    def cleanText(self, answer):
+    def _cleanText(self, answer):
         return answer.replace("\n", "").replace("\xa0", "").replace("\r", "").strip()
 
-    def readQAPairs(self, pairs):
+    def _readQAPairs(self, pairs):
         print(pairs)
         for key in pairs:
-            self.say(key, self.askerVoiceIndex)
-            self.say(pairs[key], self.billVoiceIndex)
+            self._say(key, self.askerVoiceIndex)
+            self._say(pairs[key], self.billVoiceIndex)
 
-    def say(self, message, voiceIndex):
+    def _say(self, message, voiceIndex):
         voices = self._speechEngine.getProperty("voices")
         self._speechEngine.setProperty("voice", voices[voiceIndex].id)
         self._speechEngine.say(message)
@@ -98,6 +99,6 @@ class Reader(Thread):
         self._stop.set()
 
     def read(self):
-        parsedText = self.loadPageText(self.url)
-        qaPairs = self.findQuestionAnswerPairs(parsedText)
-        self.readQAPairs(qaPairs)
+        parsedText = self._loadPageText(self.url)
+        qaPairs = self._findQuestionAnswerPairs(parsedText)
+        self._readQAPairs(qaPairs)

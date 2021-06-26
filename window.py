@@ -31,6 +31,14 @@ class Window(tk.Tk):
         askerVoice = tk.StringVar()
         askerVoice.set("Female")
         voiceOptionsAsker = tk.OptionMenu(askerFrame, askerVoice, *self._voiceOptions.keys(), command=self._updateAskerVoice)
+        
+        #read rate frame and slider
+        rateFrame = tk.LabelFrame(configFrame, text="Read Configuration")
+        rateLabel = tk.Label(rateFrame, text="Read Rate")
+        self._readRate = tk.IntVar()
+        #default slider to whatever the read rate starts as
+        self._readRate.set(self._reader.readRate)
+        rateSlider = tk.Scale(rateFrame, from_=75, to=300, orient="horizontal", command=self._updateReadRate, variable=self._readRate)
 
         #bill label frame and contents
         billFrame = tk.LabelFrame(configFrame, text="Bill")
@@ -47,6 +55,10 @@ class Window(tk.Tk):
         askerFrame.grid(row=0, column=1, ipadx=self._labelFrameIPaddingX, ipady=self._labelFrameIPaddingY)
         askerLabel.pack()
         voiceOptionsAsker.pack()
+        
+        rateFrame.grid(row=0, column=2, ipadx=self._labelFrameIPaddingX, ipady=self._labelFrameIPaddingY)
+        rateLabel.pack()
+        rateSlider.pack()
 
         billFrame.grid(row=0, column=3, ipadx=self._labelFrameIPaddingX, ipady=self._labelFrameIPaddingY)
         billLabel.pack()
@@ -83,3 +95,6 @@ class Window(tk.Tk):
         
     def _updateBillVoice(self, value):
         self._reader.billVoiceIndex = self._voiceOptions[value]
+        
+    def _updateReadRate(self, _):
+        self._reader.readRate = self._readRate.get()
