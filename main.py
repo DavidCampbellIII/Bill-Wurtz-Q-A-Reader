@@ -8,5 +8,5 @@ if __name__ == "__main__":
     maxReadTime = 10
 
     reader = Reader(url, readRate, minReadTime, maxReadTime)
-    window = Window("Bill Wurtz Q&A Reader", "600x200", reader)
+    window = Window("Bill Wurtz Q&A Reader", "1000x350", reader)
     window.mainloop()

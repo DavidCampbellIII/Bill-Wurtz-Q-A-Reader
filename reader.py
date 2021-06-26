@@ -2,15 +2,16 @@ import threading
 import bs4 as bs
 from urllib.request import urlopen, Request
 import pyttsx3
-from pyttsx3.drivers import sapi5
 import time
 import random
-from threading import Thread, active_count
+import json
+from threading import Thread
 
 class Reader(Thread):
     def __init__(self, url, readRate, minReadTime, maxReadTime):
         Thread.__init__(self, target=self.readOverTime)
         self._stop = threading.Event()
+        #so the thread can exit when the main program exits
         self.daemon = True
         
         self._speechEngine = pyttsx3.init()
@@ -26,6 +27,7 @@ class Reader(Thread):
         self.maxReadTime = maxReadTime
         self.askerVoiceIndex = 0
         self.billVoiceIndex = 1
+        self.bulkDownloadAmount = 100
 
     @property
     def readRate(self):
@@ -60,6 +62,24 @@ class Reader(Thread):
         answer = self._cleanText(questionH3.next_sibling)
         pairs[question] = answer
         return pairs
+    
+    def _getQAPair(self):
+        parsedText = self._loadPageText(self.url)
+        return self._findQuestionAnswerPairs(parsedText)
+    
+    #TODO instead of loading each random page, open the main page and parse all questions at once.
+    #that way, we can get way more questions, way faster, although they will only be the most recent ones
+    def _downloadBulkQAs(self):
+        start = time.time()
+        pairs = {}
+        for i in range(self.bulkDownloadAmount):
+            print(f"Downloading bulk unit {i + 1}/{self.bulkDownloadAmount}")
+            newPair = self._getQAPair()
+            pairs.update(newPair)
+        with open("cached_QAs.json", 'w', encoding="utf-8") as f:
+            json.dump(pairs, f, ensure_ascii=False, indent=4)
+        end = time.time()
+        print(f"Bulk download of {self.bulkDownloadAmount} completed in {end - start} seconds")
 
     def _cleanText(self, answer):
         return answer.replace("\n", "").replace("\xa0", "").replace("\r", "").strip()
@@ -99,6 +119,5 @@ class Reader(Thread):
         self._stop.set()
 
     def read(self):
-        parsedText = self._loadPageText(self.url)
-        qaPairs = self._findQuestionAnswerPairs(parsedText)
+        qaPairs = self._getQAPair()
         self._readQAPairs(qaPairs)

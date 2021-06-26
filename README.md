@@ -4,7 +4,8 @@
 
 ### TODO
 - [x] Add GUI
-- [ ] Make GUI less ugly
-- [ ] Configure time interval
+- [x] Make GUI less ugly
+- [ ] Configure read time interval
 - [x] Configure voices
-- [ ] Fully offline mode
+- [ ] Separate read rates for Asker and Bill
+- [ ] Fully offline mode (so you can enjoy all the classic Q&As you've come to know and love without the need for internet connection)
