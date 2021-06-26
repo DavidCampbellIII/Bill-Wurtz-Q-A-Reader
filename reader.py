@@ -2,6 +2,8 @@ import threading
 import bs4 as bs
 from urllib.request import urlopen, Request
 import pyttsx3
+#needed for pyttsx3 to run correctly in .exe
+from pyttsx3.drivers import sapi5
 import time
 import random
 import json
