@@ -11,6 +11,7 @@ class Reader(Thread):
     def __init__(self, url, readRate, minReadTime, maxReadTime):
         Thread.__init__(self, target=self.readOverTime)
         self._stop = threading.Event()
+        self.daemon = True
         
         self._speechEngine = pyttsx3.init()
         self._speechEngine.startLoop(False)
@@ -20,7 +21,6 @@ class Reader(Thread):
         self._isReading = False
 
         self.url = url
-        print("Setting read rate from constructor")
         self.readRate = readRate
         self.minReadTime = minReadTime
         self.maxReadTime = maxReadTime

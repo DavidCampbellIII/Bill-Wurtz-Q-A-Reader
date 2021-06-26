@@ -1,6 +1,5 @@
 from reader import Reader
 from window import Window
-import tkinter as tk
 
 if __name__ == "__main__":
     url = "https://billwurtz.com/questions/random.php?"
